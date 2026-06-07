@@ -8,11 +8,24 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/kanban';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongodb:27017/kanban';
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
+console.log("URI:", process.env.MONGODB_URI);
+console.log("USERNAME:", process.env.MONGODB_USERNAME);
+console.log("PASSWORD:", process.env.MONGODB_PASSWORD);
+
+const connectMongodb = () => {
+  console.log("Connecting Mongodb")
+  mongoose.connect(MONGODB_URI, {
+    auth: {
+      username: process.env.MONGODB_USERNAME,
+      password: process.env.MONGODB_PASSWORD
+    },
+    authSource: 'admin'
+  })
+    .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB', err));
+}
 
 const taskSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -34,6 +47,7 @@ app.get('/api/tasks', async (req, res) => {
 });
 
 app.post('/api/tasks', async (req, res) => {
+  console.log(req.body)
   const task = new Task(req.body);
   try {
     const newTask = await task.save();
@@ -65,7 +79,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
 app.put('/api/tasks/reorder', async (req, res) => {
   const { tasks } = req.body;
   try {
-    const updates = tasks.map(task => 
+    const updates = tasks.map(task =>
       Task.findByIdAndUpdate(task._id, { status: task.status, order: task.order })
     );
     await Promise.all(updates);
@@ -77,4 +91,5 @@ app.put('/api/tasks/reorder', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  connectMongodb();
 });
