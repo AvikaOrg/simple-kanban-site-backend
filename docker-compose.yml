@@ -1,25 +1,41 @@
 
-name: kanban-backend
+version: "3.8"
 services:
-    backend:
-      build:
-        context: .
-        dockerfile: Dockerfile
-      container_name: kanban-backend-container
-      ports:
-        - "3000:5000"
-      environment:
-        MONGODB_URI: mongodb://mongodb:27017/kanban
-        MONGODB_USERNAME: avika@2002
-        MONGODB_PASSWORD: 1911
-      depends_on:
-        - mongodb
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kanban-backend-container
+    ports:
+      - "3000:5000"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/kanban
+      MONGODB_USERNAME: avika@2002
+      MONGODB_PASSWORD: 1911
+    depends_on:
+      - mongodb
+    networks:
+      - backend
+    volumes:
+      - .:/app
+      - /app/node_modules
 
-    mongodb:
-      image: mongo:7
-      environment:
-        MONGO_INITDB_ROOT_USERNAME: avika@2002
-        MONGO_INITDB_ROOT_PASSWORD: 1911
-        MONGO_INITDB_DATABASE: kanban
-      ports:
-        - "27017:27017"
+  mongodb:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: avika@2002
+      MONGO_INITDB_ROOT_PASSWORD: 1911
+      MONGO_INITDB_DATABASE: kanban
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+
+networks:
+  backend:
+    driver: bridge
