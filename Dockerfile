@@ -13,5 +13,8 @@ RUN npm install
 
 COPY index.js index.js
 
+ENV PORT = 3000
+EXPOSE 3000
+
 CMD [ "node", "index.js" ]
 
