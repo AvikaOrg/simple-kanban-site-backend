@@ -89,6 +89,10 @@ app.put('/api/tasks/reorder', async (req, res) => {
   }
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK health check' });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   connectMongodb();
